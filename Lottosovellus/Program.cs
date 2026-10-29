@@ -10,16 +10,14 @@
             Console.WriteLine($"=== Lotto Application ==={Environment.NewLine}");
             PrintMenu();
 
-            int choice;
+            int gameMode;
 
-            //Kysytään pelimuodon valinta.
-            choice = ReadInt("Choice (1 / 2): ", 1, 2);
+            gameMode = ReadInt("Choice (1 / 2): ", 1, 2);
 
-            //Kysytään käyttäjää syöttämään lottonumerot joilla pelataan.
+            // Kysytään käyttäjää syöttämään lottonumerot joilla pelataan.
             int[] lottoNumbers = GetLottoNumbers();
             Array.Sort(lottoNumbers);
 
-            //Tulostetaan konsoliin valitut lottonumerot.
             PrintChosenLottoNumbers(lottoNumbers);
 
             /*
@@ -28,7 +26,7 @@
             Tokaksi valinnaksi riittää else vaihtoehto, koska ReadInt()
             palauttaa vain 1 tai 2.
             */
-            if (choice == 1)
+            if (gameMode == 1)
             {
                 int selectedRounds = ReadInt("How many rounds to play? (1 - 1,000,000): ", 1, 1000000);
                 PlaySelectedRounds(lottoNumbers, selectedRounds);
@@ -42,11 +40,15 @@
         }
         static int ReadInt(string prompt)
         {
+            // Kokeillaan voiko syöte tekstin muuttaa numeroksi.
             Console.Write(prompt);
             string text = Console.ReadLine();
-            int value;
+
+            int value; // Alustettu muuttuja johon käypä numero tallennettaan.
+
             bool ok = int.TryParse(text, out value);
 
+            // Jos käännös ei onnistu syötettä kysytään uudelleen.
             while (!ok)
             {
                 Console.WriteLine("Give an whole number.");
@@ -60,10 +62,12 @@
         }
         static int ReadInt(string prompt, int min, int max)
         {
+            // Tarkistetaan käyttäjän syötteen olevan halutulta väliltä
             int value = ReadInt(prompt);
 
             while (value < min || value > max)
             {
+                Console.WriteLine($"{Environment.NewLine}You need to choose 1 or 2.");
                 value = ReadInt(prompt);
             }
 
@@ -83,13 +87,12 @@
                 Console.Write("Enter 7 unique numbers between 1-40 separated by ',': ");
                 string input = Console.ReadLine();
 
-                //Otetaan käyttäjän syöttämät numerot ja ne pilkotaan omiksi alkioiksi.
+                // Otetaan käyttäjän syöttämät numerot ja ne pilkotaan omiksi alkioiksi.
                 string[] parts = input.Split(',');
 
-                //Alustetaan bool valid ennen silmukoita.
                 bool valid;
 
-                //Tarkistetaan että käyttäjän syöte on tasan 7 alkiota, jos ei ole aloitaan while loop alusta.
+                // Tarkistetaan että käyttäjän syöte on tasan 7 alkiota.
                 if (parts.Length != 7)
                 {
                     Console.WriteLine($"> Input was incorrect, try again. <{Environment.NewLine}");
@@ -97,53 +100,52 @@
                 }
 
                 valid = true;
+
                 /*
-                Tehdään lista valmiiksi numeroille johonka sitten lisätään käyttäjän syöttämät numerot
-                ,jos ne ovat 1-40 ja uniikkeja.
+                Tehdään lista valmiiksi numeroille johonka sitten lisätään käyttäjän syöttämät kelvolliset numerot
                 */
                 List<int> numbers = new List<int>();
 
                 foreach (string part in parts)
                 {
-                    if (int.TryParse(part, out int n)) //Tarkistetaan syötteen olevan kokonaisluku.
+                    if (int.TryParse(part, out int n)) // Tarkistetaan syötteen olevan kokonaisluku.
                     {
-                        if (n >= 1 && n <= 40) //Tarkistetaan syötettyjen lukujen olevan 1-40.
+                        if (n >= 1 && n <= 40) // Tarkistetaan syötettyjen lukujen olevan 1-40.
                         {
                             numbers.Add(n);
                         }
                         else 
                         {
-                            //Jos tarkistus ei mene läpi, lopetetaan foreach silmukka.
                             valid = false;
                             break;
                         }
                     }
                     else 
                     {
-                        //Jos syöte ei ollut kokonaisluku lopetetaan foreach silmukan ajaminen.
                         valid = false;
                         break;
                     }
                 }
                 
-                //Jos valid on true, tarkistetaan 7 numeron olevan uniikkeja.
+                // Jos valid on true, tarkistetaan syötettyjen numeroiden olevan uniikkeja.
                 if (valid && numbers.Distinct().Count() != 7) 
                 {
                     Console.WriteLine("All numbers must be unique!");
                     continue;
                 }
-                if (valid) //Jos tarkistus menee läpi palautetaan numbers taulokon tiedot.
+                if (valid) // Jos tarkistus menee läpi palautetaan numbers arrayn tiedot.
                 {
                     return numbers.ToArray();
                 }
 
-                //Jos syötteiden tarkastukset eivät mene läpi tulostetaan virheilmoitus ja palataan while loopin alkuun.
+                // Jos syötteiden tarkastukset eivät mene läpi tulostetaan virheilmoitus ja palataan while loopin alkuun.
                 Console.WriteLine($"{Environment.NewLine}> Enter whole numbers only (1-40). <");
             }
         }
         static void PrintChosenLottoNumbers(int[] numbers)
         {
             //Löytyisi varmasti järkevämpi vaihtoehto tälle....
+            //Käytin tätä koska se on yksinkertainen ratkaisu tälle.
             Console.WriteLine($"{Environment.NewLine}You chose numbers: [{numbers[0]}, {numbers[1]}, {numbers[2]}, {numbers[3]}, {numbers[4]}, {numbers[5]}, {numbers[6]}]{Environment.NewLine}");
         }
         static int[] WinningNumbersGenerator()
@@ -159,24 +161,26 @@
             }
 
             /*
-            Käytetään Fisher-Yates shuffle algorytmiä voittavien numeroiden valitsemiseen.
-            Sekoitetaan tuo numbers[] randomilla ja valitaan sieltä sitten 7 ensimmäistä numeroa.
+            Käytetään Fisher-Yates shuffle-algoritmia voittavien numeroiden valitsemiseen.
+            Sekoitetaan numerot ja valitaan sieltä sitten 7 ensimmäistä numeroa.
             Tällä toteutuksella aina kaikki valitut numerot ovat uniikkeja, koska jokainen numero esiintyy vain kerran.
             */
             Random rand = new Random();
 
-            int[] generatedLottoNumbers = new int[7];
+            int[] generatedLottoNumbers = new int[7]; // Tehdään valmiiksi array jossa on 7 indexiä.
 
             for (int i = 0; i < numbers.Length - 1; i++)
             {
-                int randomIndex = rand.Next(i, numbers.Length);
+                int randomIndex = rand.Next(i, numbers.Length); // Generoidaa sattumalla indexin paikka rajatulta alueelta.
 
-                int temp = numbers[i];
-                numbers[i] = numbers[randomIndex];
-                numbers[randomIndex] = temp;
+                int temp = numbers[i]; // Otetaan talteen alkuperäinen numero indexin paikalta.
+                numbers[i] = numbers[randomIndex]; // Laitetaan arvottussa indexissä oleva arvo "i" indexin tilalle
+                numbers[randomIndex] = temp; // Asetetaan alkuperäinen arvo arvotun indexin tilalle.
             }
 
-            Array.Copy(numbers, generatedLottoNumbers, 7); //Kopioidaan numbers:in 7 ensimmäistä numeroa taulukkoon generatedLottoNumbers.
+            // Kopioidaan numbers arraysta seitsämän alkiota generatedLottoNumbersiin käyttämällä "7" parametriä
+            // Kopiointi alkaa tässä tapauksessa vasemmalta oikealla ja indexin paikalta 0, koska ei ole syötetty aloitus indexiä.
+            Array.Copy(numbers, generatedLottoNumbers, 7);
 
             Array.Sort(generatedLottoNumbers);
 
@@ -185,16 +189,14 @@
         }
         static int CountNumberOfWins(int[] userNumbers, int[] winningNumbers)
         {
-            int matches = 0; //Alustetaan osumat.
+            int matches = 0; // Alustetaan osumat.
 
-            /*
-            Valitaan yks käyttäjän lottonumero ja
-            verrataan sitä jokaiseen generoituu voittavaan numeroon.
-            Jos löytyy osuma nostetaan int matches yhdellä ylös ja lopetetaan sisempi foreach silmukan ajaminen.
-            */
-
+            // Valitaan yks käyttäjän syöttämä numero.
+            // Sisempi foreach silmukka, kun on ajettu valitaan seuraava käyttäjän numero.
             foreach (int number in userNumbers)
             {
+                // Käydään kaikki voittavat numerot läpi ja verrataan onko jokin niistä sama, kun käyttäjällä
+                // Jos jokin numeroista täsmää nostetaan laskinta ja lopetetaan sisempi foreach silmukan ajo.
                 foreach (int win in winningNumbers)
                 {
                     if (number == win)
@@ -215,59 +217,58 @@
 
             int matches = CountNumberOfWins(lottoNumbers, winningNumbers); //Lasketaan voitto osumien määrä.
 
-            decimal winnings = Earnings(matches); //Palautetaan metodista voitto summa.
+            decimal winnings = Earnings(matches); //Palautetaan metodista voittosumma.
 
             return winnings;
 
         }
         static void PlaySelectedRounds(int[] lottoNumbers, int rounds)
         {
-            //Alustetaan laskurit.
+            // Alustetaan laskurit.
             int totalRoundsPlayed = 0; 
             decimal totalWinnings = 0.00m;
 
-            //Ajetaan käyttäjän syöttämä määrä kierroksia.
+            // Ajetaan käyttäjän syöttämä määrä kierroksia.
             for (int i = 0; i < rounds; i++)
             {
-                //Ajaa kierroksen.
-                decimal roundWinnings = DrawRound(lottoNumbers);
+                // Ajetaan kierros ja lisätään sen tulos totalWinnings muuttujaan.
+                totalWinnings += DrawRound(lottoNumbers);
 
-                //Nostetaan jokaisella kierroksella laskureita loppulaskentaa varten.
+                // Nostetaan jokaisella kierroksella pelattujen kierrosten laskuria.
                 totalRoundsPlayed++;
-                totalWinnings += roundWinnings;
             }
-            //Tulostetaan pelauksen yhteenveto.
+
             PrintPlaySummary(totalRoundsPlayed, totalWinnings);
         }
         static void PlayOnLoop(int[] lottoNumbers)
         {
-            //Alustetaan laskurit.
+            // Alustetaan laskurit.
             int totalRoundsPlayed = 0;
             decimal totalWinnings = 0;
 
             Console.WriteLine($"---> Continious play started! Press 'X' to stop. <---{Environment.NewLine}");
 
-            //While silmukka pyörii kunnes käyttäjä painaa 'X' näppäintä.
             while (true)
             {
                 if (Console.KeyAvailable)
                 {
+                    // ReadKey(true) ei tulosta painettua näppäintä ruudulle.
                     ConsoleKey key = Console.ReadKey(true).Key;
 
+                    // Lopettaa silmukan ainoastaan, jos 'X' näppäintä painetaan.
                     if (key == ConsoleKey.X)
                     {
                         break;
                     }
                 }
 
-                //Ajaa kierroksen.
-                decimal roundWinnings = DrawRound(lottoNumbers);
+                // Ajetaan kierros ja lisätään sen tulokset suoraan kokonaisvoittoihin.
+                totalWinnings += DrawRound(lottoNumbers);
 
-                //Nostetaan jokaisella kierroksella laskureita loppulaskentaa varten.
+                // Nostetaan jokaisella kierroksella laskureita loppulaskentaa varten.
                 totalRoundsPlayed++;
-                totalWinnings += roundWinnings;
 
-                //Nostetaan live datan kokonais käytetyn rahan määrää.
+                // Nostetaan live datan kokonais käytetyn rahan määrää.
                 decimal totalMoneySpent = totalRoundsPlayed * CostPerRound;
 
                 Console.Write($"\r| Rounds: {totalRoundsPlayed:N0} | Money spent: {totalMoneySpent:0.00} € | Winnings: {totalWinnings:0.00} € | ");
@@ -275,48 +276,35 @@
                 Thread.Sleep(60);
 
             }
-            //Tulostetaan pelauksen yhteenveto.
+
             PrintPlaySummary(totalRoundsPlayed, totalWinnings);
         }
         static decimal Earnings(int matches)
         {
-            //Alustetaan voitot laskuri
-            decimal winnings;
-
-            //Osumä määrän perusteella annetaan voitot, alle 3 = 0 € voitto.
-            switch (matches)
+            // Tarkistetaan listasta matches avaimella mikä voitto annetaan.
+            Dictionary<int, decimal> prizes = new Dictionary<int, decimal>
             {
-                case 7:
-                    winnings = 1000000.00m;
-                    break;
+                { 3, 1.00m },
+                { 4, 10.00m },
+                { 5, 100.00m },
+                { 6, 10000.00m },
+                { 7, 1000000.00m }
+            };
 
-                case 6:
-                    winnings = 10000.00m;
-                    break;
-
-                case 5:
-                    winnings = 100.00m;
-                    break;
-
-                case 4:
-                    winnings = 10.00m;
-                    break;
-
-                case 3:
-                    winnings = 1.00m;
-                    break;
-
-                default:
-                    winnings = 0.00m;
-                    break;
+            if (prizes.ContainsKey(matches))
+            {
+                return prizes[matches];
             }
-            return winnings;
+
+            // Palautetaan 0 voitto jos matches arvon avain ei löydy dictrionarystä.
+            return 0.00m;
+
         }
         static void PrintPlaySummary(int roundsPlayed, decimal totalWinnings)
         {
 
-            decimal moneySpent = roundsPlayed * CostPerRound; //Lasketaan käytetty raha pelatuista kierroksista.
-            decimal netEarnings = totalWinnings - moneySpent; //Lasketaan netto voitot.
+            decimal moneySpent = roundsPlayed * CostPerRound;
+            decimal netEarnings = totalWinnings - moneySpent;
 
             Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}===> FINAL SUMMARY <===");
             Console.WriteLine($"Total rounds: {roundsPlayed}");
