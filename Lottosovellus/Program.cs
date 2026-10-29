@@ -144,9 +144,7 @@
         }
         static void PrintChosenLottoNumbers(int[] numbers)
         {
-            //Löytyisi varmasti järkevämpi vaihtoehto tälle....
-            //Käytin tätä koska se on yksinkertainen ratkaisu tälle.
-            Console.WriteLine($"{Environment.NewLine}You chose numbers: [{numbers[0]}, {numbers[1]}, {numbers[2]}, {numbers[3]}, {numbers[4]}, {numbers[5]}, {numbers[6]}]{Environment.NewLine}");
+            Console.WriteLine($"{Environment.NewLine}You chose numbers: [ {string.Join(", ", numbers)} ]{Environment.NewLine}");
         }
         static int[] WinningNumbersGenerator()
         {
