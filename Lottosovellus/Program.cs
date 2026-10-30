@@ -8,6 +8,7 @@
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             Console.WriteLine($"=== Lotto Application ==={Environment.NewLine}");
+
             PrintMenu();
 
             int gameMode;
@@ -77,7 +78,7 @@
         static void PrintMenu()
         {
             Console.WriteLine("Select play mode:");
-            Console.WriteLine("1) Fixed number of rounds (prints each round)");
+            Console.WriteLine("1) Fixed number of rounds");
             Console.WriteLine("2) Continuous auto-play (live stats: press 'X' to stop)");
         }
         static int[] GetLottoNumbers()
@@ -294,7 +295,7 @@
                 return prizes[matches];
             }
 
-            // Palautetaan 0 voitto jos matches arvon avain ei löydy dictrionarystä.
+            // Palautetaan 0 voitto jos matches arvon avain ei löydy dictionarystä.
             return 0.00m;
 
         }
